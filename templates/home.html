@@ -1,1 +1,42 @@
-<h1>Welcome to GharDekho</h1>
+{% extends "base.html" %} {% block content %}
+
+<!-- Hero Section -->
+<section class="hero-section d-flex align-items-center">
+  <div class="container text-center">
+    <h1 class="display-4 fw-bold">Find Your Perfect Rental Home</h1>
+
+    <p class="lead mt-3">
+      Browse verified rental properties with zero brokerage.
+    </p>
+
+    <!-- Search Box -->
+    <div class="search-box mt-5">
+      <form class="row g-3 justify-content-center">
+        <div class="col-md-3">
+          <input
+            type="text"
+            class="form-control form-control-lg"
+            placeholder="Enter City"
+          />
+        </div>
+
+        <div class="col-md-3">
+          <input
+            type="text"
+            class="form-control form-control-lg"
+            placeholder="Enter Area"
+          />
+        </div>
+
+        <div class="col-md-2">
+          <button class="btn btn-danger btn-lg w-100">
+            <i class="bi bi-search"></i>
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

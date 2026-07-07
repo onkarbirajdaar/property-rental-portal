@@ -1,0 +1,33 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Hero Section */
+
+.hero-section{
+    min-height: 80vh;
+    display:flex;
+    align-items:center;
+
+    background: linear-gradient(
+        135deg,
+        #fff5f5,
+        #ffeaea
+    );
+}
+
+.hero-section h1{
+    color:#212529;
+}
+
+.hero-section p{
+    color:#6c757d;
+}
+
+.search-box{
+    background:white;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
