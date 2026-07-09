@@ -38,5 +38,48 @@
     </div>
   </div>
 </section>
+<section class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">Featured Properties</h2>
 
+    <p class="text-muted">Explore our latest verified rental listings.</p>
+  </div>
+  <div class="row">
+    {% for property in properties %}
+
+    <div class="col-md-4 mb-4">
+      <div class="card property-card h-100">
+        {% if property.image %}
+        <img
+          src="{{ property.image.url }}"
+          class="card-img-top"
+          alt="{{ property.title }}"
+        />
+        {% endif %}
+
+        <div class="card-body">
+          <h5 class="card-title">{{ property.title }}</h5>
+
+          <p class="text-muted">{{ property.city }}, {{ property.area }}</p>
+
+          <p><strong>₹ {{ property.rent }}</strong> / month</p>
+
+          <p>{{ property.bhk }} BHK</p>
+
+          <p>{{ property.furnished }}</p>
+
+          <a href="#" class="btn btn-danger"> View Details </a>
+        </div>
+      </div>
+    </div>
+
+    {% empty %}
+
+    <div class="col-12 text-center">
+      <p>No properties available.</p>
+    </div>
+
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

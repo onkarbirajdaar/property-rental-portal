@@ -1,3 +1,34 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.
+FURNISHED_CHOICES = [
+    ("Furnished", "Furnished"),
+    ("Semi-Furnished", "Semi-Furnished"),
+    ("Unfurnished", "Unfurnished"),
+]
+PROPERTY_TYPES = [
+    ("Apartment", "Apartment"),
+    ("House", "House"),
+    ("Villa", "Villa"),
+    ("Studio", "Studio"),
+]
+
+
+class Property(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    property_type = models.CharField(max_length=20, choices=PROPERTY_TYPES)
+    rent = models.DecimalField(max_digits=10, decimal_places=2)
+    deposit = models.DecimalField(max_digits=10, decimal_places=2)
+    bhk = models.IntegerField()
+    furnished = models.CharField(max_length=20, choices=FURNISHED_CHOICES)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    area = models.CharField(max_length=100)
+    description = models.TextField()
+    contact_number = models.CharField(max_length=15)
+    image = models.ImageField(upload_to="properties/")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
