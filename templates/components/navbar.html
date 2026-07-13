@@ -1,42 +1,55 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
   <div class="container">
-    <!--Logo-->
-    <a class="navbar-brand fw-bold text-danger fs-3" href="/"> GharDekho </a>
+    <!-- Logo -->
+    <a class="navbar-brand fw-bold text-danger fs-3" href="{% url 'home' %}">
+      GharDekho
+    </a>
 
-    <!--Mobile toggle-->
+    <!-- Mobile toggle -->
     <button
       class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarMenu"
+      aria-controls="navbarMenu"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <!--Navbar items-->
+
+    <!-- Navbar items -->
     <div class="collapse navbar-collapse" id="navbarMenu">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Rent</a>
+        </li>
 
-        <ul class="navbar-nav mx-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="#">Rent</a>
-            </li>
-             <li class="nav-item">
-                <a class="nav-link" href="#">Buy</a>
-            </li>
-             <li class="nav-item">
-                <a class="nav-link" href="#">Commercial</a>
-            </li>
-        </ul>
-            
-  <div class="d-flex">
-    <a href="#" class="btn btn-outline-danger me-2">
-        Login
-    </a>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Buy</a>
+        </li>
 
-    <a href="#" class="btn btn-danger">
-        Register
-    </a>
-</div>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Commercial</a>
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center gap-2">
+        {% if user.is_authenticated %}
+        <span class="navbar-text"> Hi, {{ user.username }} </span>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+          Dashboard
+        </a>
+        <form method="POST" action="{%url 'logout'%}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-danger">Logout</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="btn btn-outline-danger"> Login </a>
+
+        <a href="{% url 'register' %}" class="btn btn-danger"> Register </a>
+        {% endif %}
+      </div>
     </div>
-    </div>
-     </div>
+  </div>
 </nav>

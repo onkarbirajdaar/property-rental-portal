@@ -37,7 +37,25 @@
 
   <body>
     <!-- Navbar -->
-    {% include "components/navbar.html" %}
+    {% include "components/navbar.html" %} {% if messages %}
+    <section class="container mt-3">
+      {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %}
+    </section>
+    {% endif %}
 
     <!-- Main Content -->
     <main>{% block content %} {% endblock %}</main>
