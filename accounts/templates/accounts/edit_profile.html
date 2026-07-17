@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-7">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h2 class="fw-bold text-center mb-4">Edit Profile</h2>
+
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <h5 class="fw-semibold mb-3">Account Details</h5>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
+                  First Name
+                </label>
+                {{ user_form.first_name }}
+                {% for error in user_form.first_name.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
+                  Last Name
+                </label>
+                {{ user_form.last_name }}
+                {% for error in user_form.last_name.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ user_form.email.id_for_label }}" class="form-label">
+                Email
+              </label>
+              {{ user_form.email }}
+              {% for error in user_form.email.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <h5 class="fw-semibold mt-4 mb-3">Profile Details</h5>
+
+            <div class="mb-3">
+              <label for="{{ profile_form.phone.id_for_label }}" class="form-label">
+                Phone
+              </label>
+              {{ profile_form.phone }}
+              {% for error in profile_form.phone.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ profile_form.city.id_for_label }}" class="form-label">
+                City
+              </label>
+              {{ profile_form.city }}
+              {% for error in profile_form.city.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ profile_form.role.id_for_label }}" class="form-label">
+                Role
+              </label>
+              {{ profile_form.role }}
+              {% for error in profile_form.role.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ profile_form.photo.id_for_label }}" class="form-label">
+                Profile Photo
+              </label>
+              {{ profile_form.photo }}
+              {% for error in profile_form.photo.errors %}
+              <div class="text-danger small mt-1">{{ error }}</div>
+              {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+
+              <button type="submit" class="btn btn-danger">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
