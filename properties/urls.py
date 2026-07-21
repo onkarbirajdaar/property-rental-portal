@@ -8,4 +8,5 @@ urlpatterns = [
     path("properties/add/", views.add_property, name="add_property"),
     path("properties/my/", views.my_properties, name="my_properties"),
     path("properties/<int:id>/edit/", views.edit_property, name="edit_property"),
+    path("properties/<int:id>/delete/", views.delete_property, name="delete_property"),
 ]   

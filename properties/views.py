@@ -81,3 +81,16 @@ def edit_property(request, id):
     else:
         form = PropertyForm(instance=property)        
     return render(request, "edit_property.html", {"form": form,"property":property})
+
+@login_required
+def delete_property(request, id):
+    property = get_object_or_404(Property, id=id)
+    if property.owner != request.user:
+        messages.error(request, "You are not authorized to delete this property.")
+        return redirect("my_properties")
+    if request.method == "POST":
+        property.delete()
+        messages.success(request, "Property deleted")
+        return redirect("my_properties")
+           
+    return render(request, "delete_property.html", {"property":property})
