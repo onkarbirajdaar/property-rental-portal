@@ -65,3 +65,19 @@ def my_properties(request):
     return render(request, "properties/my_properties.html", {
         "properties": properties,
     })
+
+@login_required
+def edit_property(request, id):
+    property = get_object_or_404(Property, id=id)
+    if property.owner != request.user:
+        messages.error(request, "You are not authorized to edit this property.")
+        return redirect("my_properties")
+    if request.method == "POST":
+        form = PropertyForm(request.POST, request.FILES, instance=property)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Property edited successfully.")
+            return redirect("dashboard")
+    else:
+        form = PropertyForm(instance=property)        
+    return render(request, "edit_property.html", {"form": form,"property":property})
