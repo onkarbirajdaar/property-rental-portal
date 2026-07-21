@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="fw-bold mb-1">Add Property</h2>
+          <p class="text-muted mb-4">
+            Fill in the details to list your rental property.
+          </p>
+
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="mb-3">
+              <label for="{{ field.id_for_label }}" class="form-label">
+                {{ field.label }}
+              </label>
+
+              {{ field }}
+
+              {% if field.help_text %}
+              <div class="form-text small">
+                {{ field.help_text }}
+              </div>
+              {% endif %}
+
+              {% for error in field.errors %}
+              <div class="text-danger small mt-1">
+                {{ error }}
+              </div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+
+              <button type="submit" class="btn btn-danger">
+                Save Property
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,6 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Property
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import PropertyForm
 # Create your views here.
 
 
@@ -35,3 +38,30 @@ def home(request):
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
     return render(request, "property_detail.html", {"property": property})
+
+
+@login_required
+def add_property(request):
+    if request.method == "POST":
+        form = PropertyForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            property_obj = form.save(commit=False)
+            property_obj.owner = request.user
+            property_obj.save()
+
+            messages.success(request, "Property added successfully.")
+            return redirect("dashboard")
+    else:
+        form = PropertyForm()
+
+    return render(request, "add_property.html", {"form": form})
+
+
+@login_required
+def my_properties(request):
+    properties = request.user.properties.all().order_by("-created_at")
+
+    return render(request, "properties/my_properties.html", {
+        "properties": properties,
+    })

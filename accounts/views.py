@@ -9,12 +9,22 @@ from django.views.decorators.http import require_POST
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
+from properties.models import Property
 # Create your views here.
 
 
 @login_required
 def dashboard(request):
-    return render(request, "accounts/dashboard.html")
+    owner_properties = request.user.properties.all().order_by("-created_at")
+
+    total_properties = owner_properties.count()
+    latest_properties = owner_properties[:5]
+
+    return render(request, "accounts/dashboard.html", {
+        "total_properties": total_properties,
+        "latest_properties": latest_properties,
+    })
+    
 
 
 def register(request):
