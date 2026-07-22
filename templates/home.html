@@ -56,13 +56,56 @@
             value="{{ bhk }}"
           />
         </div>
+          <div class="col-md-3">
+          <input
+            type="number"
+            name="min_rent"
+            class="form-control"
+            placeholder="Enter Min Rent"
+            value="{{ min_rent }}"
+          />
+        </div>
+        <div class="col-md-3">
+          <input
+            type="number"
+            name="max_rent"
+            class="form-control"
+            placeholder="Enter Max Rent"
+            value="{{ max_rent }}"
+          />
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" name="property_type">
+          <option value="">Property Type</option>
+            {% for value, label in property_types %}
+              <option value="{{ value }}" {% if property_type == value %}selected{% endif %}>
+                {{ label }}
+          </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" name="furnished">
+          <option value="">Furnished</option>
+            {% for value, label in furnished_choices %}
+              <option value="{{ value }}" {% if furnished == value %}selected{% endif %}>
+                {{ label }}
+          </option>
+            {% endfor %}
+          </select>
+        </div>
+        </div>
 
         <div class="col-md-2">
           <button class="btn btn-danger btn-lg w-100">
             <i class="bi bi-search"></i>
             Search
           </button>
-        </div>
+          </div>
+          <div class="col-md-2">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-lg w-100">Reset</a>
+          </div>
+        
       </form>
     </div>
   </div>

@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import PropertyForm
+from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES
 # Create your views here.
 
 
@@ -12,6 +13,10 @@ def home(request):
     city = request.GET.get("city")
     area = request.GET.get("area")
     bhk = request.GET.get("bhk")
+    min_rent = request.GET.get("min_rent")
+    max_rent = request.GET.get("max_rent")
+    property_type = request.GET.get("property_type")
+    furnished = request.GET.get("furnished")
     sort = request.GET.get("sort", "")
     if city:
         properties = properties.filter(city__icontains=city)
@@ -19,6 +24,14 @@ def home(request):
         properties = properties.filter(area__icontains=area)
     if bhk:
         properties = properties.filter(bhk=bhk)
+    if min_rent:
+        properties = properties.filter(rent__gte=min_rent)
+    if max_rent:
+        properties = properties.filter(rent__lte=max_rent)
+    if property_type:
+        properties = properties.filter(property_type=property_type)    
+    if furnished:
+        properties = properties.filter(furnished=furnished)              
     if sort == "rent_low":
         properties = properties.order_by("rent")
     elif sort == "rent_high":
@@ -32,8 +45,20 @@ def home(request):
     if "page" in query_params:
         query_params.pop("page")
     query_string = query_params.urlencode()
-    return render(request, "home.html", {"page_obj": page_obj, "sort": sort, "city": city, "bhk": bhk, "area": area, "query_string": query_string})
-
+    return render(request, "home.html", {
+        "page_obj": page_obj,
+        "sort": sort,
+        "city": city,
+        "bhk": bhk,
+        "area": area,
+        "min_rent": min_rent,
+        "max_rent": max_rent,
+        "property_type": property_type,
+        "furnished": furnished,
+        "query_string": query_string,
+        "property_types": PROPERTY_TYPES,
+        "furnished_choices": FURNISHED_CHOICES,
+})
 
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
