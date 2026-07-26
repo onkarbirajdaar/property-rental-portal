@@ -3,9 +3,8 @@ from .models import Property
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import PropertyForm
-from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES
-# Create your views here.
+from .forms import PropertyForm, InterestForm
+from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest
 
 
 def home(request):
@@ -62,7 +61,38 @@ def home(request):
 
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
-    return render(request, "property_detail.html", {"property": property})
+    is_owner = request.user == property.owner
+    if is_owner:
+        interests = property.interests.all().order_by("-created_at")
+    else:
+        interests = None
+    if request.user.is_authenticated:
+        already_interested = Interest.objects.filter(property=property, tenant=request.user).exists()
+    else:
+        already_interested = False
+
+    form = InterestForm()  # default blank form for GET requests
+
+    if request.method == "POST" and not is_owner and not already_interested:
+        form = InterestForm(request.POST)
+        if form.is_valid():
+            interest = form.save(commit=False)
+            interest.property = property
+            interest.tenant = request.user
+            interest.save()
+            messages.success(request, "Interest sent to the owner.")
+            return redirect("property_detail", id=property.id)
+
+    return render(request, "property_detail.html", {
+        "property": property,
+        "is_owner": is_owner,
+        "already_interested": already_interested,
+        "form": form,
+        "interests": interests,
+    })
+
+
+     
 
 
 @login_required

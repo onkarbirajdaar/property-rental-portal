@@ -40,3 +40,28 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
+
+
+class Interest(models.Model):
+    property = models.ForeignKey(
+    Property,
+    on_delete=models.CASCADE,
+    related_name="interests",
+    
+)
+    tenant = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name=  "interests",
+        
+    )
+    message =models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+    class Meta: 
+            unique_together = ("property", "tenant")
+
+    def __str__(self):
+        return f"{self.tenant.username} interested in {self.property.title}"
+

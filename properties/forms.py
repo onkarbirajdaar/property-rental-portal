@@ -1,5 +1,5 @@
 from django import forms
-from .models import Property
+from .models import Property, Interest
 
 
 class PropertyForm(forms.ModelForm):
@@ -96,3 +96,18 @@ class PropertyForm(forms.ModelForm):
             raise forms.ValidationError("Contact number must be 10 digits.")
 
         return contact_number    
+
+
+
+class InterestForm(forms.ModelForm):
+    class Meta:
+        model = Interest
+        fields = ["message"]  
+        widgets = {
+            "message": forms.Textarea(attrs={
+            "class": "form-control",
+            "rows": 3,
+            "placeholder": "Write a message to the owner (optional)",
+                }),
+            
+        }    

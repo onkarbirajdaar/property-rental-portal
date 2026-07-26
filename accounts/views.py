@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-from properties.models import Property
+from properties.models import Property,Interest
 # Create your views here.
 
 
@@ -19,10 +19,12 @@ def dashboard(request):
 
     total_properties = owner_properties.count()
     latest_properties = owner_properties[:5]
+    interested_user =Interest.objects.filter(property__owner=request.user).count()
 
     return render(request, "accounts/dashboard.html", {
         "total_properties": total_properties,
         "latest_properties": latest_properties,
+        "interested_user": interested_user,
     })
     
 
@@ -37,8 +39,9 @@ def register(request):
             messages.success(request, "Account created successfully. Welcome!")
             return redirect("home")
     else:
-        form = RegisterFrom(request.POST)
-        return render(request, "accounts/register.html", {"form": form})
+        form = RegisterFrom()
+
+    return render(request, "accounts/register.html", {"form": form})
 
 
 def user_login(request):

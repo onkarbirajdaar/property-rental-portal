@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <div class="container py-5">
-  {% comment %} {% for property in properties %} {% endcomment %}
+  
   <h2>{{ property.title }}</h2>
 
   {% if property.image %}
@@ -24,8 +24,53 @@
   <p><strong>Description:</strong> {{ property.description }}</p>
 
   <p><strong>Contact:</strong> {{ property.contact_number }}</p>
+<hr class="my-4">
 
+{% if is_owner %}
+  <h4>Interested Tenants</h4>
+
+  {% for interest in interests %}
+    <div class="card mb-2">
+      <div class="card-body">
+        <p class="mb-1"><strong>{{ interest.tenant.username }}</strong></p>
+        {% if interest.message %}
+          <p class="mb-1">{{ interest.message }}</p>
+        {% endif %}
+        <p class="text-muted small mb-0">{{ interest.created_at|date:"d M Y, h:i A" }}</p>
+      </div>
+    </div>
+
+  {% empty %}
+    <p class="text-muted">No one has expressed interest yet.</p>
+  {% endfor %}
+
+{% elif already_interested %}
+  <div class="alert alert-info">
+    You've already expressed interest in this property. The owner has your message.
+  </div>
+
+{% elif user.is_authenticated %}
+  <h4>Interested in this property?</h4>
+  <form method="POST">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        {{ field }}
+        {% for error in field.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-danger">Express Interest</button>
+  </form>
+
+{% else %}
+  <div class="alert alert-warning">
+    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> or
+    <a href="{% url 'register' %}">register</a> to express interest in this property.
+  </div>
+{% endif %}
   <a href="{% url 'home' %}" class="btn btn-secondary"> Back </a>
-  {% comment %} {% endfor %} {% endcomment %}
+  
 </div>
 {% endblock%}
