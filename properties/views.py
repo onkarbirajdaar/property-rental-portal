@@ -4,11 +4,12 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import PropertyForm, InterestForm
-from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest
+from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest, STATUS_CHOICES
 
 
 def home(request):
-    properties = Property.objects.all()
+    properties = Property.objects.all().filter(status="Available")
+   
     city = request.GET.get("city")
     area = request.GET.get("area")
     bhk = request.GET.get("bhk")
@@ -57,6 +58,7 @@ def home(request):
         "query_string": query_string,
         "property_types": PROPERTY_TYPES,
         "furnished_choices": FURNISHED_CHOICES,
+        
 })
 
 def property_detail(request, id):

@@ -20,6 +20,11 @@
           <p class="text-muted">{{ property.city }}, {{ property.area }}</p>
           <p><strong>₹ {{ property.rent }}</strong> / month</p>
           <p>{{ property.bhk }} BHK</p>
+          {% if property.status == "Available" %}
+            <span class="badge bg-success">Available</span>
+          {% else %}
+            <span class="badge bg-danger">Rented</span>
+          {% endif %}
 
           <a href="{% url 'property_detail' property.id %}" class="btn btn-danger btn-sm">View</a>
           <a href="{% url 'edit_property' property.id %}" class="btn btn-outline-primary btn-sm">Edit</a>

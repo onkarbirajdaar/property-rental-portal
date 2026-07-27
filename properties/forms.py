@@ -18,6 +18,7 @@ class PropertyForm(forms.ModelForm):
             "description",
             "contact_number",
             "image",
+            "status"
         ]
 
         widgets = {
@@ -67,6 +68,9 @@ class PropertyForm(forms.ModelForm):
             }),
             "image": forms.ClearableFileInput(attrs={
                 "class": "form-control",
+            }),
+            "status": forms.Select(attrs={
+            "class": "form-select",
             }),
         }
         
