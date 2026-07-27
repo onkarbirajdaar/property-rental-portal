@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container py-5">
+  <div class="text-center mb-5">
+    <h2 class="fw-bold">My Wishlist</h2>
+  </div>
+
+  <div class="row">
+    {% for item in wishlist_items %}
+    <div class="col-md-4 mb-4">
+      <div class="card property-card h-100">
+        {% if item.property.image %}
+        <img src="{{ item.property.image.url }}" class="card-img-top" alt="{{ item.property.title }}" />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ item.property.title }}</h5>
+          <p class="text-muted">{{ item.property.city }}, {{ item.property.area }}</p>
+          <p><strong>₹ {{ item.property.rent }}</strong> / month</p>
+          <a href="{% url 'property_detail' item.property.id %}" class="btn btn-danger btn-sm">View</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+      <p>Your wishlist is empty.</p>
+      <a href="{% url 'home' %}" class="btn btn-danger btn-sm">Browse Properties</a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

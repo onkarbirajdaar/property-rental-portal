@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Property,Interest
+from .models import Property,Interest, Wishlist
 # Register your models here.
 
 @admin.register(Property)
@@ -14,3 +14,12 @@ class InterestAdmin(admin.ModelAdmin):
     list_display = ("property", "tenant", "created_at", "message")
     list_filter = ("created_at", "property")
     search_fields = ("tenant__username", "property__title", "message")
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = ("property", "user", "created_at")
+    list_filter = ("created_at", "property")
+    search_fields = ("user__username", "property__title")
+    
+    
+

@@ -9,4 +9,6 @@ urlpatterns = [
     path("properties/my/", views.my_properties, name="my_properties"),
     path("properties/<int:id>/edit/", views.edit_property, name="edit_property"),
     path("properties/<int:id>/delete/", views.delete_property, name="delete_property"),
+    path("properties/<int:id>/wishlist/", views.toggle_wishlist, name="toggle_wishlist"),
+    path("wishlist/", views.my_wishlist, name="my_wishlist"),
 ]   

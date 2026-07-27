@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import PropertyForm, InterestForm
-from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest, STATUS_CHOICES
+from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest, STATUS_CHOICES, Wishlist
 
 
 def home(request):
@@ -85,12 +85,18 @@ def property_detail(request, id):
             messages.success(request, "Interest sent to the owner.")
             return redirect("property_detail", id=property.id)
 
+    if request.user.is_authenticated:
+        already_wishlisted = Wishlist.objects.filter(property=property, user=request.user).exists()
+    else:
+        already_wishlisted = False
+
     return render(request, "property_detail.html", {
         "property": property,
         "is_owner": is_owner,
         "already_interested": already_interested,
         "form": form,
         "interests": interests,
+        "already_wishlisted": already_wishlisted,
     })
 
 
@@ -151,3 +157,26 @@ def delete_property(request, id):
         return redirect("my_properties")
            
     return render(request, "delete_property.html", {"property":property})
+
+
+@login_required
+def toggle_wishlist(request, id):
+    property = get_object_or_404(Property, id=id)
+    wishlist_item = Wishlist.objects.filter(property=property, user=request.user).first()
+
+    if wishlist_item:
+        wishlist_item.delete()   
+        messages.success(request, "Removed from wishlist.")
+    else:
+        Wishlist.objects.create(property=property, user=request.user)   
+        messages.success(request, "Added to wishlist.")
+
+    return redirect("property_detail", id=property.id)
+
+
+@login_required
+def my_wishlist(request):
+    wishlist_items = request.user.wishlists.all().order_by("-created_at")
+    return render(request, "properties/my_wishlist.html", {
+        "wishlist_items": wishlist_items,
+    })

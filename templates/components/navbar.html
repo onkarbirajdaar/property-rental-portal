@@ -19,26 +19,18 @@
     </button>
 
     <!-- Navbar items -->
-    <div class="collapse navbar-collapse" id="navbarMenu">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Rent</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="#">Buy</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="#">Commercial</a>
-        </li>
-      </ul>
-
+    <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
       <div class="d-flex align-items-center gap-2">
         {% if user.is_authenticated %}
         <span class="navbar-text"> Hi, {{ user.username }} </span>
         <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
           Dashboard
+        </a>
+        <a href="{% url 'my_wishlist' %}" class="btn btn-outline-secondary">
+          My Wishlist
+        </a>
+        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
+          Profile
         </a>
         <form method="POST" action="{%url 'logout'%}" class="d-inline">
           {% csrf_token %}
@@ -46,11 +38,7 @@
         </form>
         {% else %}
         <a href="{% url 'login' %}" class="btn btn-outline-danger"> Login </a>
-
         <a href="{% url 'register' %}" class="btn btn-danger"> Register </a>
-        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
-          Profile
-        </a>
         {% endif %}
       </div>
     </div>

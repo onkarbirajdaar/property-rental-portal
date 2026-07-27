@@ -71,3 +71,29 @@ class Interest(models.Model):
     def __str__(self):
         return f"{self.tenant.username} interested in {self.property.title}"
 
+
+
+
+class Wishlist(models.Model):
+    property = models.ForeignKey(
+    Property,
+    on_delete=models.CASCADE,
+    related_name="wishlists",
+    
+)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name=  "wishlists",
+        
+    )
+    
+
+    created_at = models.DateTimeField(auto_now_add=True)    
+
+    class Meta: 
+            unique_together = ("property", "user")
+
+    def __str__(self):
+        return f"{self.user.username} wishlisted {self.property.title}"
+

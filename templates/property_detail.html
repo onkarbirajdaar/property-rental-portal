@@ -28,6 +28,16 @@
   <p><strong>Contact:</strong> {{ property.contact_number }}</p>
 <hr class="my-4">
 
+{% if user.is_authenticated and not is_owner %}
+<form method="POST" action="{% url 'toggle_wishlist' property.id %}" class="d-inline">
+  {% csrf_token %}
+  {% if already_wishlisted %}
+    <button type="submit" class="btn btn-outline-danger">Remove from Wishlist</button>
+  {% else %}
+    <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
+  {% endif %}
+</form>
+{% endif %}
 {% if is_owner %}
   <h4>Interested Tenants</h4>
 
