@@ -1,7 +1,7 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top gd-navbar">
   <div class="container">
     <!-- Logo -->
-    <a class="navbar-brand fw-bold text-danger fs-3" href="{% url 'home' %}">
+    <a class="navbar-brand fw-semibold gd-logo" href="{% url 'home' %}">
       GharDekho
     </a>
 
@@ -20,25 +20,30 @@
 
     <!-- Navbar items -->
     <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
-      <div class="d-flex align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
         {% if user.is_authenticated %}
-        <span class="navbar-text"> Hi, {{ user.username }} </span>
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
-          Dashboard
+        <div class="d-flex align-items-center gap-2 me-2">
+          <span class="gd-avatar">{{ user.username|slice:":1"|upper }}</span>
+          <span class="gd-hi-text d-none d-lg-inline">Hi, {{ user.username }}</span>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn gd-btn-ghost">
+          <i class="bi bi-grid"></i> Dashboard
         </a>
-        <a href="{% url 'my_wishlist' %}" class="btn btn-outline-secondary">
-          My Wishlist
+        <a href="{% url 'my_wishlist' %}" class="btn gd-btn-ghost">
+          <i class="bi bi-bookmark-heart"></i> My Wishlist
         </a>
-        <a href="{% url 'profile' %}" class="btn btn-outline-secondary">
-          Profile
+        <a href="{% url 'profile' %}" class="btn gd-btn-ghost">
+          <i class="bi bi-person"></i> Profile
         </a>
-        <form method="POST" action="{%url 'logout'%}" class="d-inline">
+        <form method="POST" action="{% url 'logout' %}" class="d-inline">
           {% csrf_token %}
-          <button type="submit" class="btn btn-outline-danger">Logout</button>
+          <button type="submit" class="btn gd-btn-logout">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </button>
         </form>
         {% else %}
-        <a href="{% url 'login' %}" class="btn btn-outline-danger"> Login </a>
-        <a href="{% url 'register' %}" class="btn btn-danger"> Register </a>
+        <a href="{% url 'login' %}" class="btn gd-btn-ghost">Login</a>
+        <a href="{% url 'register' %}" class="btn gd-btn-primary">Register</a>
         {% endif %}
       </div>
     </div>

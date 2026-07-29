@@ -4,9 +4,10 @@
 <section class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-8">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-          <h2 class="fw-bold mb-1">Edit Property</h2>
+      <div class="card border-0 gd-form-card">
+        <div class="card-body p-4 p-md-5">
+          <span class="section-eyebrow">Update Listing</span>
+          <h2 class="fw-medium mb-1 mt-1">Edit Property</h2>
           <p class="text-muted mb-4">
             Update the changes in your rental property.
           </p>
@@ -16,13 +17,14 @@
 
             {% for field in form %}
             {% if field.name == "image" and property.image %}
-                <div class="mb-2">
-                <img src="{{ property.image.url }}" alt="Current property image" style="max-width: 200px;" class="rounded">
-                <p class="small text-muted mb-1">Current photo — upload a new one below to replace it.</p>
-                </div>
+            <div class="gd-current-image mb-3">
+              <img src="{{ property.image.url }}" alt="Current property image" class="rounded" />
+              <p class="small text-muted mb-0 mt-2">Current photo — upload a new one below to replace it.</p>
+            </div>
             {% endif %}
+
             <div class="mb-3">
-              <label for="{{ field.id_for_label }}" class="form-label">
+              <label for="{{ field.id_for_label }}" class="form-label fw-medium">
                 {{ field.label }}
               </label>
 

@@ -3,26 +3,27 @@
 {% block content %}
 <section class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-          <h2 class="fw-bold mb-1">Delete Property</h2>
-          
+    <div class="col-lg-7">
+      <div class="card border-0 gd-form-card">
+        <div class="card-body p-4 p-md-5 text-center">
+          <div class="gd-warn-icon mb-3">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <h2 class="fw-medium mb-3">Delete Property</h2>
 
           <form method="POST" novalidate>
             {% csrf_token %}
             <p class="text-muted mb-4">
-  Are you sure you want to delete "<strong>{{ property.title }}</strong>"? This action cannot be undone.
+              Are you sure you want to delete "<strong>{{ property.title }}</strong>"? This action cannot be undone.
             </p>
-           
 
-            <div class="d-flex justify-content-between mt-4">
-              <a href="{% url 'my_properties' %}" class="btn btn-outline-secondary">
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <a href="{% url 'my_properties' %}" class="btn btn-outline-secondary px-4">
                 Cancel
               </a>
 
-              <button type="submit" class="btn btn-danger">
-                Yes,Delete
+              <button type="submit" class="btn btn-danger px-4">
+                Yes, Delete
               </button>
             </div>
           </form>

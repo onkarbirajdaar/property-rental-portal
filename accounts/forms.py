@@ -27,9 +27,9 @@ class RegisterFrom(UserCreationForm):
     )
 
 
-class Meta:
-    model = User
-    fields = ["username", "password1", "password2"]
+    class Meta:
+        model = User
+        fields = ["username", "password1", "password2"]
 
 
 class LoginForm(AuthenticationForm):
@@ -75,14 +75,19 @@ class ProfileUpdateForm(forms.ModelForm):
         model = Profile
         fields = ["phone", "city", "role", "photo"]
         widgets = {
-            "phone": forms.TextInput(attrs={
-                "class": "form-control",
-                "placeholder": "Enter city",
-            }),
-            "role": forms.Select(attrs={
-                "class": "form-select",
-            }),
-            "photo": forms.ClearableFileInput(attrs={
-                "class": "form-control",
-            }),
-        }
+    "phone": forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "Enter phone number",   
+    }),
+    "city": forms.TextInput(attrs={
+        "class": "form-control",
+        "placeholder": "Enter city",
+    }),
+    "role": forms.Select(attrs={
+        "class": "form-select",
+    }),
+    "photo": forms.ClearableFileInput(attrs={
+        "class": "form-control",
+    }),
+}
+        

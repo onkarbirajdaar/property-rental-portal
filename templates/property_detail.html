@@ -1,88 +1,143 @@
 {% extends "base.html" %} {% block content %}
 <div class="container py-5">
-  
-  <h2>{{ property.title }}</h2>
 
-  {% if property.image %}
-  <img src="{{ property.image.url }}" class="img-fluid rounded mb-4" />
-  {% endif %}
+  <a href="javascript:history.back()" class="gd-back-link mb-3 d-inline-flex align-items-center gap-1">
+    <i class="bi bi-arrow-left"></i> Back to listings
+  </a>
 
-  <p><strong>Rent:</strong> ₹{{ property.rent }}</p>
+  <div class="row g-4">
+    <!-- Main column -->
+    <div class="col-lg-7">
+      {% if property.image %}
+      <img src="{{ property.image.url }}" class="img-fluid rounded-4 mb-4 gd-detail-image" alt="{{ property.title }}" />
+      {% else %}
+      <div class="gd-detail-image-placeholder mb-4">
+        <i class="bi bi-house-door"></i>
+      </div>
+      {% endif %}
 
-  <p><strong>Deposit:</strong> ₹{{ property.deposit }}</p>
+      <h2 class="fw-medium mb-1">{{ property.title }}</h2>
+      <p class="text-muted mb-4">
+        <i class="bi bi-geo-alt"></i> {{ property.area }}, {{ property.city }}
+      </p>
 
-  <p><strong>BHK:</strong> {{ property.bhk }}</p>
+      <div class="row g-2 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="gd-fact-box">
+            <span class="gd-fact-label">BHK</span>
+            <span class="gd-fact-value">{{ property.bhk }}</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="gd-fact-box">
+            <span class="gd-fact-label">Furnished</span>
+            <span class="gd-fact-value">{{ property.furnished }}</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="gd-fact-box">
+            <span class="gd-fact-label">Deposit</span>
+            <span class="gd-fact-value">&#8377;{{ property.deposit }}</span>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="gd-fact-box">
+            <span class="gd-fact-label">Listed by</span>
+            <span class="gd-fact-value">{{ property.owner.username }}</span>
+          </div>
+        </div>
+      </div>
 
-  <p><strong>Furnished:</strong> {{ property.furnished }}</p>
+      <h5 class="fw-semibold mb-2">Description</h5>
+      <p class="text-muted mb-4">{{ property.description }}</p>
 
-  <p><strong>City:</strong> {{ property.city }}</p>
+      <h5 class="fw-semibold mb-2">Address</h5>
+      <p class="text-muted">{{ property.address }}</p>
+    </div>
 
-  <p><strong>Area:</strong> {{ property.area }}</p>
+    <!-- Sidebar -->
+    <div class="col-lg-5">
+      <div class="gd-form-card p-4 gd-sticky-card">
+        <p class="property-price mb-1" style="font-size: 1.6rem;">
+          &#8377;{{ property.rent }} <small>/ month</small>
+        </p>
+        <p class="text-muted small mb-4">Deposit: &#8377;{{ property.deposit }}</p>
 
-  <p><strong>Address:</strong> {{ property.address }}</p>
+        <div class="gd-contact-row mb-2">
+          <i class="bi bi-telephone"></i>
+          <span>{{ property.contact_number }}</span>
+        </div>
+        <div class="gd-contact-row mb-4">
+          <i class="bi bi-person"></i>
+          <span>{{ property.owner.username }}</span>
+        </div>
 
-  <p><strong>Description:</strong> {{ property.description }}</p>
-  
-  <p><strong>Listed by:</strong> {{ property.owner.username }}</p>
+        {% if user.is_authenticated and not is_owner %}
+        <form method="POST" action="{% url 'toggle_wishlist' property.id %}">
+          {% csrf_token %}
+          {% if already_wishlisted %}
+          <button type="submit" class="btn btn-outline-danger w-100">
+            <i class="bi bi-bookmark-heart-fill"></i> Remove from Wishlist
+          </button>
+          {% else %}
+          <button type="submit" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-bookmark-heart"></i> Add to Wishlist
+          </button>
+          {% endif %}
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 
-  <p><strong>Contact:</strong> {{ property.contact_number }}</p>
-<hr class="my-4">
+  <hr class="my-5">
 
-{% if user.is_authenticated and not is_owner %}
-<form method="POST" action="{% url 'toggle_wishlist' property.id %}" class="d-inline">
-  {% csrf_token %}
-  {% if already_wishlisted %}
-    <button type="submit" class="btn btn-outline-danger">Remove from Wishlist</button>
-  {% else %}
-    <button type="submit" class="btn btn-outline-primary">Add to Wishlist</button>
-  {% endif %}
-</form>
-{% endif %}
-{% if is_owner %}
-  <h4>Interested Tenants</h4>
+  <!-- Interest section -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      {% if is_owner %}
+      <h4 class="fw-medium mb-3">Interested Tenants</h4>
 
-  {% for interest in interests %}
-    <div class="card mb-2">
-      <div class="card-body">
-        <p class="mb-1"><strong>{{ interest.tenant.username }}</strong></p>
+      {% for interest in interests %}
+      <div class="gd-form-card mb-2 p-3">
+        <p class="mb-1 fw-semibold">{{ interest.tenant.username }}</p>
         {% if interest.message %}
-          <p class="mb-1">{{ interest.message }}</p>
+        <p class="mb-1 text-muted">{{ interest.message }}</p>
         {% endif %}
         <p class="text-muted small mb-0">{{ interest.created_at|date:"d M Y, h:i A" }}</p>
       </div>
-    </div>
+      {% empty %}
+      <p class="text-muted">No one has expressed interest yet.</p>
+      {% endfor %}
 
-  {% empty %}
-    <p class="text-muted">No one has expressed interest yet.</p>
-  {% endfor %}
-
-{% elif already_interested %}
-  <div class="alert alert-info">
-    You've already expressed interest in this property. The owner has your message.
-  </div>
-
-{% elif user.is_authenticated %}
-  <h4>Interested in this property?</h4>
-  <form method="POST">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="mb-3">
-        {{ field }}
-        {% for error in field.errors %}
-          <div class="text-danger small mt-1">{{ error }}</div>
-        {% endfor %}
+      {% elif already_interested %}
+      <div class="alert alert-info">
+        You've already expressed interest in this property. The owner has your message.
       </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-danger">Express Interest</button>
-  </form>
 
-{% else %}
-  <div class="alert alert-warning">
-    <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> or
-    <a href="{% url 'register' %}">register</a> to express interest in this property.
+      {% elif user.is_authenticated %}
+      <h4 class="fw-medium mb-3">Interested in this property?</h4>
+      <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+          {{ field }}
+          {% for error in field.errors %}
+          <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-danger">Express Interest</button>
+      </form>
+
+      {% else %}
+      <div class="alert alert-warning">
+        <a href="{% url 'login' %}?next={{ request.path }}">Log in</a> or
+        <a href="{% url 'register' %}">register</a> to express interest in this property.
+      </div>
+      {% endif %}
+    </div>
   </div>
-{% endif %}
-  <a href="{% url 'home' %}" class="btn btn-secondary"> Back </a>
-  
+
 </div>
 {% endblock%}

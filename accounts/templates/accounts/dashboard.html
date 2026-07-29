@@ -2,51 +2,59 @@
 
 {% block content %}
 <section class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
     <div>
-      <h1 class="fw-bold mb-1">Owner Dashboard</h1>
-      <p class="text-muted mb-0">
-        Welcome back, {{ user.username }}. Manage your rental listings here.
-      </p>
+      <span class="section-eyebrow">Owner Dashboard</span>
+      <h1 class="fw-medium mt-1 mb-1">Welcome back, {{ user.username }}</h1>
+      <p class="text-muted mb-0">Manage your rental listings here.</p>
     </div>
-    <a href="{% url 'my_properties' %}" class="btn btn-outline-secondary">
-  My Properties
-    </a>
-    <a href="{% url 'add_property' %}" class="btn btn-danger">
-  Add Property
-    </a>
-    
+    <div class="d-flex gap-2">
+      <a href="{% url 'my_properties' %}" class="btn btn-outline-secondary">
+        My Properties
+      </a>
+      <a href="{% url 'add_property' %}" class="btn btn-danger">
+        <i class="bi bi-plus-lg"></i> Add Property
+      </a>
+    </div>
   </div>
 
   <div class="row g-4 mb-5">
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">Total Properties</p>
-          <h2 class="fw-bold mb-0">{{ total_properties }}</h2>
+      <div class="gd-form-card h-100">
+        <div class="card-body p-4 d-flex align-items-center gap-3">
+          <div class="gd-stat-icon gd-stat-icon-teal">
+            <i class="bi bi-houses"></i>
+          </div>
+          <div>
+            <p class="text-muted mb-1 small">Total Properties</p>
+            <h2 class="fw-semibold mb-0 gd-mono-number">{{ total_properties }}</h2>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body">
-          <p class="text-muted mb-1">Interested Users</p>
-          <h2 class="fw-bold mb-0">{{ interested_user }}</h2>
-          
+      <div class="gd-form-card h-100">
+        <div class="card-body p-4 d-flex align-items-center gap-3">
+          <div class="gd-stat-icon gd-stat-icon-brand">
+            <i class="bi bi-people"></i>
+          </div>
+          <div>
+            <p class="text-muted mb-1 small">Interested Users</p>
+            <h2 class="fw-semibold mb-0 gd-mono-number">{{ interested_user }}</h2>
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    
-
-  <div class="card border-0 shadow-sm">
-    <div class="card-body">
-      <h4 class="fw-bold mb-4">Latest Properties</h4>
+  <div class="gd-form-card">
+    <div class="card-body p-4">
+      <h4 class="fw-medium mb-4">Latest Properties</h4>
 
       {% if latest_properties %}
       <div class="table-responsive">
-        <table class="table align-middle">
+        <table class="table align-middle gd-table">
           <thead>
             <tr>
               <th>Property</th>
@@ -64,7 +72,7 @@
               <td class="fw-semibold">{{ property.title }}</td>
               <td>{{ property.city }}</td>
               <td>{{ property.area }}</td>
-              <td>₹ {{ property.rent }}</td>
+              <td class="gd-mono">&#8377;{{ property.rent }}</td>
               <td>{{ property.bhk }}</td>
               <td>{{ property.created_at|date:"d M Y" }}</td>
             </tr>
@@ -73,13 +81,11 @@
         </table>
       </div>
       {% else %}
-      <div class="text-center py-5">
-        <h5 class="fw-bold">No properties yet</h5>
-        <p class="text-muted">
-          Once you add properties, they will appear here.
-        </p>
-
-        <a href="{% url 'add_property' %}" class="btn btn-danger">
+      <div class="gd-empty-state text-center">
+        <i class="bi bi-house-add gd-empty-icon"></i>
+        <p class="fw-semibold mb-1">No properties yet</p>
+        <p class="text-muted mb-3">Once you add properties, they will appear here.</p>
+        <a href="{% url 'add_property' %}" class="btn btn-danger btn-sm">
           Add Your First Property
         </a>
       </div>
