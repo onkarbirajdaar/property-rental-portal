@@ -6,6 +6,12 @@ from .models import Profile
 
 
 class RegisterFrom(UserCreationForm):
+    role = forms.ChoiceField(
+        choices=Profile.ROLE_CHOICES,
+        widget=forms.Select(attrs={
+            "class": "form-select",
+        }),
+    )
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             "class": "form-control",
@@ -30,6 +36,13 @@ class RegisterFrom(UserCreationForm):
     class Meta:
         model = User
         fields = ["username", "password1", "password2"]
+
+    def save(self, commit=True):
+        user = super().save(commit=commit)
+        if commit:
+            user.profile.role = self.cleaned_data["role"]
+            user.profile.save(update_fields=["role"])
+        return user
 
 
 class LoginForm(AuthenticationForm):

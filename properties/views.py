@@ -1,10 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from functools import wraps
 from .models import Property
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import PropertyForm, InterestForm
 from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest, STATUS_CHOICES, Wishlist
+
+
+def owner_required(view_func):
+    """Limit listing management actions to users registered as owners."""
+    @wraps(view_func)
+    def wrapped_view(request, *args, **kwargs):
+        if request.user.profile.role != "owner":
+            messages.error(request, "Only property owners can post a property.")
+            return redirect("home")
+        return view_func(request, *args, **kwargs)
+    return wrapped_view
 
 
 def home(request):
@@ -104,6 +116,7 @@ def property_detail(request, id):
 
 
 @login_required
+@owner_required
 def add_property(request):
     if request.method == "POST":
         form = PropertyForm(request.POST, request.FILES)

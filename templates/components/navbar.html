@@ -35,6 +35,11 @@
         <a href="{% url 'profile' %}" class="btn gd-btn-ghost">
           <i class="bi bi-person"></i> Profile
         </a>
+        {% if user.profile.role == "owner" %}
+        <a href="{% url 'add_property' %}" class="btn gd-btn-primary">
+          <i class="bi bi-plus-lg"></i> Post Property
+        </a>
+        {% endif %}
         <form method="POST" action="{% url 'logout' %}" class="d-inline">
           {% csrf_token %}
           <button type="submit" class="btn gd-btn-logout">
