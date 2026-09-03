@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from functools import wraps
+from django.urls import reverse
+from django.views.decorators.http import require_POST
 from .models import Property
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -87,6 +89,9 @@ def property_detail(request, id):
 
     form = InterestForm()  # default blank form for GET requests
 
+    if request.method == "POST" and not request.user.is_authenticated:
+        return redirect(f"{reverse('login')}?next={request.path}")
+
     if request.method == "POST" and not is_owner and not already_interested:
         form = InterestForm(request.POST)
         if form.is_valid():
@@ -173,8 +178,13 @@ def delete_property(request, id):
 
 
 @login_required
+@require_POST
 def toggle_wishlist(request, id):
     property = get_object_or_404(Property, id=id)
+    if property.owner == request.user:
+        messages.error(request, "You cannot add your own property to your wishlist.")
+        return redirect("property_detail", id=property.id)
+
     wishlist_item = Wishlist.objects.filter(property=property, user=request.user).first()
 
     if wishlist_item:
