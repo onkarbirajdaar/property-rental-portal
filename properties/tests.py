@@ -71,3 +71,36 @@ class TenantActionTests(TestCase):
         response = self.client.get(reverse("toggle_wishlist", args=[self.property.id]))
         self.assertEqual(response.status_code, 405)
         self.assertEqual(Wishlist.objects.count(), 0)
+
+
+class PropertySearchTests(TestCase):
+    def setUp(self):
+        self.owner = User.objects.create_user("owner", password="safe-password-123")
+        self.available_property = Property.objects.create(
+            owner=self.owner, title="Available home", property_type="Apartment",
+            rent=Decimal("15000.00"), deposit=Decimal("30000.00"), bhk=2,
+            furnished="Furnished", address="1 Main Street", city="Pune", area="Kothrud",
+            description="A bright home", contact_number="9876543210", image="properties/test.jpg",
+        )
+        self.rented_property = Property.objects.create(
+            owner=self.owner, title="Rented home", property_type="Apartment",
+            rent=Decimal("15000.00"), deposit=Decimal("30000.00"), bhk=2,
+            furnished="Furnished", address="2 Main Street", city="Pune", area="Kothrud",
+            description="Already rented", contact_number="9876543210", image="properties/test.jpg",
+            status="Rented",
+        )
+
+    def test_invalid_bhk_shows_error(self):
+        response = self.client.get(reverse("home"), {"bhk": "two"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Enter a whole number")
+
+    def test_invalid_rent_range_shows_error(self):
+        response = self.client.get(reverse("home"), {"min_rent": "30000", "max_rent": "10000"})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Minimum rent cannot be higher than maximum rent")
+
+    def test_valid_filter_returns_available_matching_property_only(self):
+        response = self.client.get(reverse("home"), {"city": "Pune", "bhk": "2"})
+        self.assertContains(response, self.available_property.title)
+        self.assertNotContains(response, self.rented_property.title)

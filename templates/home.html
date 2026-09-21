@@ -8,75 +8,95 @@
   </svg>
 
   <div class="container text-center">
-    <span class="hero-eyebrow">
-      <i class="bi bi-shield-check"></i> Zero Brokerage &middot; Verified Listings
-    </span>
-    <h1 class="display-4 fw-medium mt-3">
-      Find Your Perfect <em>Rental Home</em>
-    </h1>
-    <p class="lead mt-3">
-      Browse verified rental properties with zero brokerage.
-    </p>
+    <h1 class="nb-hero-title">Find your next home without brokerage</h1>
+    <p class="nb-hero-offer"><i class="bi bi-truck"></i> Verified listings <span></span> <i class="bi bi-patch-check"></i> Direct owner contact</p>
 
-    <!-- Search Box -->
-    <div class="search-box mt-4">
-      <form method="GET" class="row g-3 align-items-end">
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Sort By</label>
-          <select class="form-select" name="sort">
-            <option value="">Sort By</option>
-            <option value="rent_low" {% if sort == "rent_low" %}selected{% endif %}>Lowest Rent</option>
-            <option value="rent_high" {% if sort == "rent_high" %}selected{% endif %}>Highest Rent</option>
-            <option value="latest" {% if sort == "latest" %}selected{% endif %}>Latest</option>
-          </select>
+    <!-- Location-first property search -->
+    <div class="search-box nb-search mt-4">
+      <form method="GET">
+        {% if search_form.non_field_errors %}
+        <div>
+          {% for error in search_form.non_field_errors %}
+          <div class="alert alert-danger mb-0">{{ error }}</div>
+          {% endfor %}
         </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">City</label>
-          <input type="text" name="city" class="form-control" placeholder="Enter City" value="{{ city|default_if_none:'' }}" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Area</label>
-          <input type="text" name="area" class="form-control" placeholder="Enter Area" value="{{ area|default_if_none:'' }}" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">BHK</label>
-          <input type="text" name="bhk" class="form-control" placeholder="BHK" value="{{ bhk|default_if_none:'' }}" />
+        {% endif %}
+        <div class="nb-search-tabs" role="tablist" aria-label="Listing purpose">
+          <button type="button" class="nb-search-tab">Buy</button>
+          <button type="button" class="nb-search-tab is-active" aria-selected="true">Rent</button>
+          <button type="button" class="nb-search-tab">Commercial</button>
         </div>
 
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Min Rent</label>
-          <input type="number" name="min_rent" class="form-control" placeholder="Enter Min Rent" value="{{ min_rent }}" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Max Rent</label>
-          <input type="number" name="max_rent" class="form-control" placeholder="Enter Max Rent" value="{{ max_rent }}" />
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Property Type</label>
-          <select class="form-select" name="property_type">
-            <option value="">No option selected</option>
-            {% for value, label in property_types %}
-              <option value="{{ value }}" {% if property_type == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-3">
-          <label class="form-label small text-muted mb-1">Furnished</label>
-          <select class="form-select" name="furnished">
-            <option value="">No option selected</option>
-            {% for value, label in furnished_choices %}
-              <option value="{{ value }}" {% if furnished == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
+        <div class="nb-search-main">
+          <div class="nb-search-field nb-city-field">
+            <div class="nb-input-wrap">
+              <input id="search-city" type="text" name="city" placeholder="Select city" value="{{ search_form.city.value|default_if_none:'' }}" autocomplete="address-level2" aria-label="City" />
+              <i class="bi bi-chevron-down"></i>
+            </div>
+          </div>
+          <div class="nb-search-divider" aria-hidden="true"></div>
+          <div class="nb-search-field nb-location-field">
+            <div class="nb-input-wrap">
+              <input id="search-area" type="text" name="area" placeholder="Search upto 3 localities, societies or landmarks" value="{{ search_form.area.value|default_if_none:'' }}" autocomplete="off" aria-label="Locality, society or landmark" />
+            </div>
+          </div>
+          <button class="btn nb-search-button" type="submit"><i class="bi bi-search"></i><span>Search</span></button>
         </div>
 
-        <div class="col-md-6">
-          <button class="btn btn-danger w-100">
-            <i class="bi bi-search"></i> Search
+        <div class="nb-search-actions">
+          <div class="nb-property-options" aria-label="Rental type">
+            <label><input type="radio" name="listing_kind" value="full-house" checked /> <span>Full House</span></label>
+            <label><input type="radio" name="listing_kind" value="pg" /> <span>PG/Hostel</span></label>
+            <label><input type="radio" name="listing_kind" value="flatmates" /> <span>Flatmates</span></label>
+          </div>
+          <div class="nb-bhk-quick">
+            <select name="bhk" aria-label="BHK type">
+              <option value="">BHK Type</option>
+              <option value="1" {% if search_form.bhk.value|stringformat:'s' == '1' %}selected{% endif %}>1 BHK</option>
+              <option value="2" {% if search_form.bhk.value|stringformat:'s' == '2' %}selected{% endif %}>2 BHK</option>
+              <option value="3" {% if search_form.bhk.value|stringformat:'s' == '3' %}selected{% endif %}>3 BHK</option>
+              <option value="4" {% if search_form.bhk.value|stringformat:'s' == '4' %}selected{% endif %}>4+ BHK</option>
+            </select>
+          </div>
+          <button class="nb-filter-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#moreSearchFilters" aria-expanded="false" aria-controls="moreSearchFilters">
+            <i class="bi bi-sliders"></i> More filters
           </button>
+          <a href="{% url 'home' %}" class="nb-reset-link">Clear search</a>
         </div>
-        <div class="col-md-6">
-          <a href="{% url 'home' %}" class="btn btn-outline-secondary w-100">Reset</a>
+
+        <div class="collapse" id="moreSearchFilters">
+          <div class="nb-filter-panel row g-3">
+            <div class="col-sm-6 col-lg-3">
+              <label class="form-label" for="search-min-rent">Minimum rent</label>
+              <input id="search-min-rent" type="number" name="min_rent" min="0" class="form-control" placeholder="No minimum" value="{{ search_form.min_rent.value|default_if_none:'' }}" />
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <label class="form-label" for="search-max-rent">Maximum rent</label>
+              <input id="search-max-rent" type="number" name="max_rent" min="0" class="form-control" placeholder="No maximum" value="{{ search_form.max_rent.value|default_if_none:'' }}" />
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <label class="form-label" for="search-type">Property type</label>
+              <select id="search-type" class="form-select" name="property_type">
+                <option value="">Any type</option>
+                {% for value, label in property_types %}<option value="{{ value }}" {% if search_form.property_type.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <label class="form-label" for="search-furnished">Furnishing</label>
+              <select id="search-furnished" class="form-select" name="furnished">
+                <option value="">Any furnishing</option>
+                {% for value, label in furnished_choices %}<option value="{{ value }}" {% if search_form.furnished.value == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+              <label class="form-label" for="search-sort">Sort results</label>
+              <select id="search-sort" class="form-select" name="sort">
+                <option value="">Latest listings</option>
+                <option value="rent_low" {% if search_form.sort.value == "rent_low" %}selected{% endif %}>Lowest rent</option>
+                <option value="rent_high" {% if search_form.sort.value == "rent_high" %}selected{% endif %}>Highest rent</option>
+              </select>
+            </div>
+          </div>
         </div>
       </form>
     </div>

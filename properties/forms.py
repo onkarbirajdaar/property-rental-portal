@@ -1,5 +1,5 @@
 from django import forms
-from .models import Property, Interest
+from .models import Property, Interest, PROPERTY_TYPES, FURNISHED_CHOICES
 
 
 class PropertyForm(forms.ModelForm):
@@ -114,4 +114,32 @@ class InterestForm(forms.ModelForm):
             "placeholder": "Write a message to the owner (optional)",
                 }),
             
-        }    
+        }
+
+
+class PropertySearchForm(forms.Form):
+    SORT_CHOICES = [
+        ("", "Sort By"),
+        ("rent_low", "Lowest Rent"),
+        ("rent_high", "Highest Rent"),
+        ("latest", "Latest"),
+    ]
+
+    city = forms.CharField(required=False, max_length=100)
+    area = forms.CharField(required=False, max_length=100)
+    bhk = forms.IntegerField(required=False, min_value=1)
+    min_rent = forms.DecimalField(required=False, min_value=0, max_digits=10, decimal_places=2)
+    max_rent = forms.DecimalField(required=False, min_value=0, max_digits=10, decimal_places=2)
+    property_type = forms.ChoiceField(required=False, choices=[("", "Any type"), *PROPERTY_TYPES])
+    furnished = forms.ChoiceField(required=False, choices=[("", "Any furnishing"), *FURNISHED_CHOICES])
+    sort = forms.ChoiceField(required=False, choices=SORT_CHOICES)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        min_rent = cleaned_data.get("min_rent")
+        max_rent = cleaned_data.get("max_rent")
+
+        if min_rent is not None and max_rent is not None and min_rent > max_rent:
+            raise forms.ValidationError("Minimum rent cannot be higher than maximum rent.")
+
+        return cleaned_data

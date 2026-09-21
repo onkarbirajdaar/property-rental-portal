@@ -6,7 +6,7 @@ from .models import Property
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import PropertyForm, InterestForm
+from .forms import PropertyForm, InterestForm, PropertySearchForm
 from .models import Property, PROPERTY_TYPES, FURNISHED_CHOICES, Interest, STATUS_CHOICES, Wishlist
 
 
@@ -22,30 +22,28 @@ def owner_required(view_func):
 
 
 def home(request):
-    properties = Property.objects.all().filter(status="Available")
-   
-    city = request.GET.get("city")
-    area = request.GET.get("area")
-    bhk = request.GET.get("bhk")
-    min_rent = request.GET.get("min_rent")
-    max_rent = request.GET.get("max_rent")
-    property_type = request.GET.get("property_type")
-    furnished = request.GET.get("furnished")
-    sort = request.GET.get("sort", "")
-    if city:
-        properties = properties.filter(city__icontains=city)
-    if area:
-        properties = properties.filter(area__icontains=area)
-    if bhk:
-        properties = properties.filter(bhk=bhk)
-    if min_rent:
-        properties = properties.filter(rent__gte=min_rent)
-    if max_rent:
-        properties = properties.filter(rent__lte=max_rent)
-    if property_type:
-        properties = properties.filter(property_type=property_type)    
-    if furnished:
-        properties = properties.filter(furnished=furnished)              
+    properties = Property.objects.filter(status="Available")
+    search_form = PropertySearchForm(request.GET or None)
+    sort = ""
+
+    if search_form.is_valid():
+        filters = search_form.cleaned_data
+        if filters["city"]:
+            properties = properties.filter(city__icontains=filters["city"])
+        if filters["area"]:
+            properties = properties.filter(area__icontains=filters["area"])
+        if filters["bhk"] is not None:
+            properties = properties.filter(bhk=filters["bhk"])
+        if filters["min_rent"] is not None:
+            properties = properties.filter(rent__gte=filters["min_rent"])
+        if filters["max_rent"] is not None:
+            properties = properties.filter(rent__lte=filters["max_rent"])
+        if filters["property_type"]:
+            properties = properties.filter(property_type=filters["property_type"])
+        if filters["furnished"]:
+            properties = properties.filter(furnished=filters["furnished"])
+        sort = filters["sort"]
+
     if sort == "rent_low":
         properties = properties.order_by("rent")
     elif sort == "rent_high":
@@ -61,14 +59,7 @@ def home(request):
     query_string = query_params.urlencode()
     return render(request, "home.html", {
         "page_obj": page_obj,
-        "sort": sort,
-        "city": city,
-        "bhk": bhk,
-        "area": area,
-        "min_rent": min_rent,
-        "max_rent": max_rent,
-        "property_type": property_type,
-        "furnished": furnished,
+        "search_form": search_form,
         "query_string": query_string,
         "property_types": PROPERTY_TYPES,
         "furnished_choices": FURNISHED_CHOICES,
