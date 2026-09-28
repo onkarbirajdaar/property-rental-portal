@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Chat | PropertyPortal{% endblock %}
+
+{% block content %}
+
+<section class="container py-5">
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+
+```
+  <!-- Chat Header -->
+  <div class="chat-page">
+
+    <div class="chat-header">
+      <div>
+        <h1 class="chat-title">Chat</h1>
+
+        <p class="chat-property mb-0">
+          {{ conversation.property }}
+        </p>
+      </div>
+
+      <span class="chat-status">
+        Conversation
+      </span>
+    </div>
+
+
+    <!-- Messages -->
+    <div class="chat-messages">
+
+      {% if messages %}
+
+        {% for message in messages %}
+
+          <div
+            class="chat-message {% if message.sender_id == request.user.id %}chat-message-own{% else %}chat-message-other{% endif %}"
+          >
+
+            <div class="chat-message-meta">
+              <strong>
+                {{ message.sender.username }}
+              </strong>
+
+              <time>
+                {{ message.created_at|date:"M d, H:i" }}
+              </time>
+            </div>
+
+            <div class="chat-message-body">
+              {{ message.body }}
+            </div>
+
+          </div>
+
+        {% endfor %}
+
+      {% else %}
+
+        <div class="chat-empty">
+          <i class="bi bi-chat-dots"></i>
+
+          <h5>No messages yet</h5>
+
+          <p>
+            Start a conversation about this property.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+
+    <!-- Message Form -->
+    <div class="chat-input-area">
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="chat-input-group">
+
+          {{ form.body }}
+
+          <button
+            type="submit"
+            class="chat-send-button"
+          >
+            <i class="bi bi-send-fill"></i>
+            <span>Send</span>
+          </button>
+
+        </div>
+
+        {% if form.body.errors %}
+          <div class="chat-form-error">
+            {{ form.body.errors }}
+          </div>
+        {% endif %}
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
+```
+
+  </div>
+
+</section>
+
+{% endblock %}
