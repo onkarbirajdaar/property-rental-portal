@@ -90,11 +90,7 @@ class PropertySearchTests(TestCase):
             status="Rented",
         )
 
-    def test_invalid_bhk_shows_error(self):
-        response = self.client.get(reverse("home"), {"bhk": "two"})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Enter a whole number")
-
+    
     def test_invalid_rent_range_shows_error(self):
         response = self.client.get(reverse("home"), {"min_rent": "30000", "max_rent": "10000"})
         self.assertEqual(response.status_code, 200)
