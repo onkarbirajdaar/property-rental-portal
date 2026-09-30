@@ -11,7 +11,12 @@
 
 ```
   <!-- Chat Header -->
-  <div class="chat-page">
+  <div
+    class="chat-page"
+    id="propertyChat"
+    data-conversation-id="{{ conversation.id }}"
+    data-user-id="{{ request.user.id }}"
+  >
 
     <div class="chat-header">
       <div>
@@ -29,7 +34,7 @@
 
 
     <!-- Messages -->
-    <div class="chat-messages">
+    <div class="chat-messages" id="chatMessages">
 
       {% if messages %}
 
@@ -77,12 +82,17 @@
     <!-- Message Form -->
     <div class="chat-input-area">
 
-      <form method="post">
+      <form method="post" id="chatForm">
         {% csrf_token %}
 
         <div class="chat-input-group">
 
-          {{ form.body }}
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Type a message..."
+            autocomplete="off"
+          />
 
           <button
             type="submit"

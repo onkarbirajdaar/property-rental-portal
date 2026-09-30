@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("chatForm");
     const input = document.getElementById("chatInput");
 
-    if (!launcher || !chat || !form || !input) {
+    if (!chat || !form || !input || !messagesContainer) {
         return;
     }
 
@@ -99,17 +99,23 @@ document.addEventListener("DOMContentLoaded", () => {
         messagesContainer.appendChild(messageElement);
     }
 
-    launcher.addEventListener("click", () => {
-        chat.classList.toggle("d-none");
+    if (launcher) {
+        launcher.addEventListener("click", () => {
+            chat.classList.toggle("d-none");
 
-        if (!chat.classList.contains("d-none")) {
-            loadMessages();
-        }
-    });
+            if (!chat.classList.contains("d-none")) {
+                loadMessages();
+            }
+        });
+    } else {
+        loadMessages();
+    }
 
-    closeButton.addEventListener("click", () => {
-        chat.classList.add("d-none");
-    });
+    if (closeButton) {
+        closeButton.addEventListener("click", () => {
+            chat.classList.add("d-none");
+        });
+    }
 
     socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data);
