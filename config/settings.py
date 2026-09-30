@@ -80,9 +80,18 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "BACKEND": (
+            "channels.layers.InMemoryChannelLayer"
+            if DEBUG
+            else "channels_redis.core.RedisChannelLayer"
+        ),
     },
 }
+
+if not DEBUG:
+    CHANNEL_LAYERS["default"]["CONFIG"] = {
+        "hosts": [config("REDIS_URL")],
+    }
 
 
 # Database
