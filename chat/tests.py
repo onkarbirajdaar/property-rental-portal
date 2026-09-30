@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 from asgiref.sync import async_to_sync
 from channels.testing import WebsocketCommunicator
@@ -213,3 +213,76 @@ class ChatHttpTests(TestCase):
 				sender=self.tenant,
 			).exists()
 		)
+
+	def test_owner_can_send_over_websocket(self):
+		communicator = self.websocket_communicator(self.owner)
+
+		async def exchange_message():
+			connected, _ = await communicator.connect()
+			await communicator.send_json_to({"body": "Owner reply"})
+			message = await communicator.receive_json_from()
+			await communicator.disconnect()
+			return connected, message
+
+		connected, message = async_to_sync(exchange_message)()
+
+		self.assertTrue(connected)
+		self.assertEqual(message["body"], "Owner reply")
+		self.assertTrue(
+			Message.objects.filter(
+				conversation=self.conversation,
+				sender=self.owner,
+				body="Owner reply",
+			).exists()
+		)
+
+	def test_websocket_broadcasts_message_to_tenant_and_owner(self):
+		tenant_client = Client()
+		tenant_client.force_login(self.tenant)
+		tenant_cookie = tenant_client.cookies["sessionid"].value
+		owner_client = Client()
+		owner_client.force_login(self.owner)
+		owner_cookie = owner_client.cookies["sessionid"].value
+
+		async def exchange_message():
+			tenant_communicator = WebsocketCommunicator(
+				application,
+				f"/ws/chat/{self.conversation.id}/",
+				headers=[(b"cookie", f"sessionid={tenant_cookie}".encode())],
+			)
+			owner_communicator = WebsocketCommunicator(
+				application,
+				f"/ws/chat/{self.conversation.id}/",
+				headers=[(b"cookie", f"sessionid={owner_cookie}".encode())],
+			)
+
+			tenant_connected, _ = await tenant_communicator.connect()
+			owner_connected, _ = await owner_communicator.connect()
+			await tenant_communicator.send_json_to({"body": "Realtime hello"})
+			tenant_message = await tenant_communicator.receive_json_from()
+			owner_message = await owner_communicator.receive_json_from()
+			await tenant_communicator.disconnect()
+			await owner_communicator.disconnect()
+			return tenant_connected, owner_connected, tenant_message, owner_message
+
+		tenant_connected, owner_connected, tenant_message, owner_message = (
+			async_to_sync(exchange_message)()
+		)
+
+		self.assertTrue(tenant_connected)
+		self.assertTrue(owner_connected)
+		self.assertEqual(tenant_message["body"], "Realtime hello")
+		self.assertEqual(owner_message["body"], "Realtime hello")
+		self.assertEqual(Message.objects.filter(body="Realtime hello").count(), 1)
+
+	def test_invalid_websocket_payload_is_ignored(self):
+		communicator = self.websocket_communicator(self.tenant)
+
+		async def send_invalid_payload():
+			connected, _ = await communicator.connect()
+			await communicator.send_json_to({"body": "x" * 2001})
+			await communicator.disconnect()
+			return connected
+
+		self.assertTrue(async_to_sync(send_invalid_payload)())
+		self.assertEqual(Message.objects.count(), 0)

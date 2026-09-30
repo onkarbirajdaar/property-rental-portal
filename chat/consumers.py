@@ -19,17 +19,16 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 			await self.close(code=4003)
 			return
 
-		self.conversation_id = conversation.id
-		self.group_name = f"chat_{self.conversation_id}"
-		await self.channel_layer.group_add(self.group_name, self.channel_name)
+		group_name = f"chat_{self.scope['url_route']['kwargs']['conversation_id']}"
+		await self.channel_layer.group_add(group_name, self.channel_name)
 		await self.accept()
 
 	async def disconnect(self, close_code):
-		if hasattr(self, "group_name"):
-			await self.channel_layer.group_discard(
-				self.group_name,
-				self.channel_name,
-			)
+		group_name = f"chat_{self.scope['url_route']['kwargs']['conversation_id']}"
+		await self.channel_layer.group_discard(
+			group_name,
+			self.channel_name,
+		)
 
 	async def receive_json(self, content, **kwargs):
 		body = content.get("body", "")
@@ -42,9 +41,14 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 			await self.send_json({"error": "Message cannot be empty."})
 			return
 
-		message = await self.create_message(body)
+		session_user_id = self.scope.get("session", {}).get("_auth_user_id")
+		if not session_user_id:
+			return
+
+		message = await self.create_message(body, int(session_user_id))
+		group_name = f"chat_{self.scope['url_route']['kwargs']['conversation_id']}"
 		await self.channel_layer.group_send(
-			self.group_name,
+			group_name,
 			{
 				"type": "chat.message",
 				"id": message["id"],
@@ -82,10 +86,10 @@ class ChatConsumer(AsyncJsonWebsocketConsumer):
 		return conversation
 
 	@database_sync_to_async
-	def create_message(self, body):
+	def create_message(self, body, user_id):
 		message = Message.objects.create(
-			conversation_id=self.conversation_id,
-			sender=self.scope["user"],
+			conversation_id=self.scope["url_route"]["kwargs"]["conversation_id"],
+			sender_id=user_id,
 			body=body,
 		)
 		return {
