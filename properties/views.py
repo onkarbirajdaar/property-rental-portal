@@ -69,20 +69,33 @@ def home(request):
 def property_detail(request, id):
     property = get_object_or_404(Property, id=id)
     is_owner = request.user == property.owner
+    conversation = None
     if is_owner:
+        from chat.models import Conversation
         interests = property.interests.all().order_by("-created_at")
+        for interest in interests:
+            interest.conversation, _ = Conversation.objects.get_or_create(
+                property=property,
+                tenant=interest.tenant,
+            )
+        selected_conversation_id = request.GET.get("chat")
+        if selected_conversation_id:
+            conversation = Conversation.objects.filter(
+                id=selected_conversation_id,
+                property=property,
+            ).select_related("tenant").first()
     else:
         interests = None
     if request.user.is_authenticated:
-        already_interested = Interest.objects.filter(property=property, tenant=request.user).exists()
+        already_interested = Interest.objects.filter(
+            property=property,
+            tenant=request.user,
+        ).exists()
     else:
         already_interested = False
-
-    form = InterestForm()  # default blank form for GET requests
-
+    form = InterestForm()
     if request.method == "POST" and not request.user.is_authenticated:
         return redirect(f"{reverse('login')}?next={request.path}")
-
     if request.method == "POST" and not is_owner and not already_interested:
         form = InterestForm(request.POST)
         if form.is_valid():
@@ -92,21 +105,32 @@ def property_detail(request, id):
             interest.save()
             messages.success(request, "Interest sent to the owner.")
             return redirect("property_detail", id=property.id)
-
     if request.user.is_authenticated:
-        already_wishlisted = Wishlist.objects.filter(property=property, user=request.user).exists()
+        already_wishlisted = Wishlist.objects.filter(
+            property=property,
+            user=request.user,
+        ).exists()
     else:
         already_wishlisted = False
-
-    return render(request, "property_detail.html", {
-        "property": property,
-        "is_owner": is_owner,
-        "already_interested": already_interested,
-        "form": form,
-        "interests": interests,
-        "already_wishlisted": already_wishlisted,
-    })
-
+    if request.user.is_authenticated and not is_owner:
+        from chat.models import Conversation
+        conversation, created = Conversation.objects.get_or_create(
+            property=property,
+            tenant=request.user,
+        )
+    return render(
+        request,
+        "property_detail.html",
+        {
+            "property": property,
+            "is_owner": is_owner,
+            "already_interested": already_interested,
+            "form": form,
+            "interests": interests,
+            "already_wishlisted": already_wishlisted,
+            "conversation": conversation,
+        },
+    )
 
      
 

@@ -190,9 +190,19 @@
 
       <div class="gd-form-card mb-2 p-3">
 
-        <p class="mb-1 fw-semibold">
-          {{ interest.tenant.username }}
-        </p>
+        <div class="d-flex justify-content-between align-items-start gap-3">
+          <p class="mb-1 fw-semibold">
+            {{ interest.tenant.username }}
+          </p>
+
+          <a
+            href="{% url 'property_detail' property.id %}?chat={{ interest.conversation.id }}"
+            class="btn btn-outline-danger btn-sm"
+          >
+            <i class="bi bi-chat-dots"></i>
+            Chat
+          </a>
+        </div>
 
         {% if interest.message %}
         <p class="mb-1 text-muted">
@@ -290,7 +300,7 @@
        FLOATING CHAT BUTTON
        ===================================================== -->
 
-  {% if user.is_authenticated and not is_owner %}
+  {% if user.is_authenticated and conversation %}
 
   <button
     type="button"
@@ -308,26 +318,28 @@
        ===================================================== -->
 
   <div
-    class="property-chat d-none"
+    class="property-chat chat-page d-none"
     id="propertyChat"
     data-conversation-id="{{ conversation.id }}"
     data-user-id="{{ request.user.id }}"
   >
 
     <!-- Chat header -->
-    <div class="property-chat-header">
+    <div class="property-chat-header chat-header">
 
       <div>
 
         <h5>
-          Chat with Owner
+          {% if is_owner %}Chat with {{ conversation.tenant.username }}{% else %}Chat with Owner{% endif %}
         </h5>
 
         <small>
-          {{ property.owner.username }}
+          {% if is_owner %}{{ conversation.tenant.username }}{% else %}{{ property.owner.username }}{% endif %}
         </small>
 
       </div>
+
+      <span class="chat-status" id="chatStatus">connecting</span>
 
 
       <button
@@ -343,10 +355,7 @@
 
 
     <!-- Messages -->
-    <div
-      class="property-chat-messages"
-      id="chatMessages"
-    >
+    <div class="property-chat-messages chat-messages" id="chatMessages">
 
       <div class="chat-empty">
 
@@ -362,28 +371,29 @@
 
 
     <!-- Message input -->
-    <form
-      class="property-chat-form"
-      id="chatForm"
-    >
+    <div class="chat-input-area">
+      <form class="property-chat-form" id="chatForm">
 
-      {% csrf_token %}
+        {% csrf_token %}
 
-      <input
-        type="text"
-        id="chatInput"
-        placeholder="Type a message..."
-        autocomplete="off"
-      />
+        <div class="chat-input-group">
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Type a message..."
+            autocomplete="off"
+          />
 
-      <button
-        type="submit"
-        aria-label="Send message"
-      >
-        <i class="bi bi-send-fill"></i>
-      </button>
-
-    </form>
+          <button
+            type="submit"
+            class="chat-send-button"
+            aria-label="Send message"
+          >
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </div>
+      </form>
+    </div>
 
   </div>
 

@@ -26,9 +26,58 @@ document.addEventListener("DOMContentLoaded", () => {
     const conversationId = chat.dataset.conversationId;
     const currentUserId = Number(chat.dataset.userId);
     const websocketScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const socket = new WebSocket(
-        `${websocketScheme}://${window.location.host}/ws/chat/${conversationId}/`,
-    );
+    const statusElement = document.getElementById("chatStatus");
+    let socket;
+    let reconnectTimer;
+    let reconnectAttempt = 0;
+    let shouldReconnect = true;
+
+    function updateStatus(status) {
+        if (statusElement) {
+            statusElement.textContent = status;
+        }
+    }
+
+    function connectSocket() {
+        updateStatus(reconnectAttempt ? "reconnecting" : "connecting");
+        socket = new WebSocket(
+            `${websocketScheme}://${window.location.host}/ws/chat/${conversationId}/`,
+        );
+
+        socket.addEventListener("open", () => {
+            reconnectAttempt = 0;
+            updateStatus("online");
+        });
+
+        socket.addEventListener("close", () => {
+            updateStatus("offline");
+            if (!shouldReconnect) {
+                return;
+            }
+
+            reconnectAttempt += 1;
+            clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(connectSocket, 2000);
+        });
+
+        socket.addEventListener("error", () => {
+            updateStatus("offline");
+        });
+
+        socket.addEventListener("message", (event) => {
+            const data = JSON.parse(event.data);
+
+            if (data.error) {
+                console.error("failed to send message:", data.error);
+                return;
+            }
+
+            renderMessage(data);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+    }
+
+    connectSocket();
 
     async function loadMessages() {
         try {
@@ -117,18 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    socket.addEventListener("message", (event) => {
-        const data = JSON.parse(event.data);
-
-        if (data.error) {
-            console.error("failed to send message:", data.error);
-            return;
-        }
-
-        renderMessage(data);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    });
-
     form.addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -138,8 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    if (socket.readyState !== WebSocket.OPEN) {
-        console.error("chat websocket is not connected");
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+        updateStatus("connecting");
         return;
     }
 
@@ -148,5 +185,9 @@ document.addEventListener("DOMContentLoaded", () => {
     input.focus();
 });
 
-    window.addEventListener("beforeunload", () => socket.close());
+    window.addEventListener("beforeunload", () => {
+        shouldReconnect = false;
+        clearTimeout(reconnectTimer);
+        socket.close();
+    });
 });
