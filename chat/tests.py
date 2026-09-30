@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
+from asgiref.sync import async_to_sync
+from channels.testing import WebsocketCommunicator
 
+from config.asgi import application
 from properties.models import Property
 
 from .models import Conversation, Message
@@ -132,3 +135,81 @@ class ChatHttpTests(TestCase):
 		self.assertEqual(history_response.status_code, 403)
 		self.assertEqual(send_response.status_code, 403)
 		self.assertEqual(Message.objects.count(), 0)
+
+	def websocket_communicator(self, user=None):
+		headers = []
+		if user is not None:
+			self.client.force_login(user)
+			session_cookie = self.client.cookies["sessionid"].value
+			headers = [(b"cookie", f"sessionid={session_cookie}".encode())]
+		return WebsocketCommunicator(
+			application,
+			f"/ws/chat/{self.conversation.id}/",
+			headers=headers,
+		)
+
+	def test_anonymous_user_cannot_access_chat_http_endpoints(self):
+		history_url = reverse(
+			"chat_messages",
+			kwargs={"conversation_id": self.conversation.id},
+		)
+		send_url = reverse(
+			"send_message",
+			kwargs={"conversation_id": self.conversation.id},
+		)
+
+		self.assertEqual(self.client.get(history_url).status_code, 302)
+		self.assertEqual(
+			self.client.post(send_url, {"body": "Anonymous"}).status_code,
+			302,
+		)
+
+	def test_unrelated_user_cannot_open_conversation_page(self):
+		self.client.force_login(self.other_user)
+
+		response = self.client.get(
+			reverse(
+				"conversation_detail",
+				kwargs={"conversation_id": self.conversation.id},
+			)
+		)
+
+		self.assertRedirects(response, reverse("home"))
+
+	def test_anonymous_websocket_is_rejected(self):
+		communicator = self.websocket_communicator()
+
+		connected, close_code = async_to_sync(communicator.connect)()
+
+		self.assertFalse(connected)
+		self.assertEqual(close_code, 4001)
+
+	def test_unrelated_user_websocket_is_rejected(self):
+		communicator = self.websocket_communicator(self.other_user)
+
+		connected, close_code = async_to_sync(communicator.connect)()
+
+		self.assertFalse(connected)
+		self.assertEqual(close_code, 4003)
+
+	def test_related_tenant_can_connect_and_send_over_websocket(self):
+		communicator = self.websocket_communicator(self.tenant)
+
+		async def exchange_message():
+			connected, _ = await communicator.connect()
+			await communicator.send_json_to({"body": "WebSocket message"})
+			message = await communicator.receive_json_from()
+			await communicator.disconnect()
+			return connected, message
+
+		connected, message = async_to_sync(exchange_message)()
+		self.assertTrue(connected)
+		self.assertEqual(message["body"], "WebSocket message")
+		self.assertEqual(message["sender_id"], self.tenant.id)
+		self.assertTrue(
+			Message.objects.filter(
+				conversation=self.conversation,
+				body="WebSocket message",
+				sender=self.tenant,
+			).exists()
+		)
