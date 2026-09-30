@@ -768,6 +768,34 @@ main {
   overflow-wrap: anywhere;
 }
 
+.property-chat .chat-message {
+  max-width: 86%;
+  margin-bottom: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+}
+
+.property-chat .chat-message-own {
+  margin-left: auto;
+}
+
+.property-chat .chat-message-other {
+  margin-right: auto;
+}
+
+.property-chat .chat-message-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.68rem;
+}
+
+.property-chat .chat-message-body {
+  font-size: 0.85rem;
+}
+
 
 /* Empty state */
 
