@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const conversationId = chat.dataset.conversationId;
     const currentUserId = Number(chat.dataset.userId);
+    const websocketScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const socket = new WebSocket(
+        `${websocketScheme}://${window.location.host}/ws/chat/${conversationId}/`,
+    );
 
     async function loadMessages() {
         try {
@@ -107,7 +111,19 @@ document.addEventListener("DOMContentLoaded", () => {
         chat.classList.add("d-none");
     });
 
-    form.addEventListener("submit", async (event) => {
+    socket.addEventListener("message", (event) => {
+        const data = JSON.parse(event.data);
+
+        if (data.error) {
+            console.error("failed to send message:", data.error);
+            return;
+        }
+
+        renderMessage(data);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    });
+
+    form.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const body = input.value.trim();
@@ -116,38 +132,15 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    try {
-        const response = await fetch(
-            `/chat/conversation/${conversationId}/send/`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    "X-CSRFToken": getCookie("csrftoken"),
-                },
-                body: new URLSearchParams({
-                    body: body,
-                }),
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            console.error("failed to send message:", data);
-            return;
-        }
-
-        renderMessage(data);
-
-        input.value = "";
-        input.focus();
-
-        messagesContainer.scrollTop =
-            messagesContainer.scrollHeight;
-
-    } catch (error) {
-        console.error("error sending message:", error);
+    if (socket.readyState !== WebSocket.OPEN) {
+        console.error("chat websocket is not connected");
+        return;
     }
+
+    socket.send(JSON.stringify({ body }));
+    input.value = "";
+    input.focus();
 });
+
+    window.addEventListener("beforeunload", () => socket.close());
 });
